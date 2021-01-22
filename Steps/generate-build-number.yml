@@ -1,0 +1,24 @@
+﻿parameters:
+  - name: Major
+    type: number
+  - name: Minor
+    type: number
+  - name: Patch
+    type: number
+  - name: IsPrerelease
+    type: boolean
+  - name: Revision
+    type: string
+
+steps:
+  - powershell: |
+      $build = ('{0:yy}{1:000}' -f [datetime]::Today, [datetime]::Today.DayOfYear)
+      Write-Host "##vso[task.setvariable variable=VersionBuild;isOutput=true]$build"
+      Write-Host "##vso[task.setvariable variable=VersionRevision;isOutput=true]${{ parameters.Revision }}"
+      if( '${{parameters.IsPrerelease}}' -eq 'True' ) {
+        Write-Host "##vso[build.updatebuildnumber]${{ parameters.Major }}.${{ parameters.Minor }}.${{ parameters.Patch }}-preview$build.${{ parameters.Revision }}"
+      } else {
+        Write-Host "##vso[build.updatebuildnumber]${{ parameters.Major }}.${{ parameters.Minor }}.${{ parameters.Patch }}.${{ parameters.Revision }}"
+      }
+    displayName: generate build number
+    name: generateBuildNumber
