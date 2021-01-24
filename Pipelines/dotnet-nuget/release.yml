@@ -1,4 +1,6 @@
-﻿# Copyright © 2020 Emmanuel Benitez
+﻿#region Copyright & License
+
+# Copyright © 2020 - 2021 Emmanuel Benitez
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#endregion
+
 parameters:
   - name: ProjectOrSolutionPath
     type: string
@@ -22,9 +26,8 @@ parameters:
   - name: Patch
     type: number
     default: 0
-  - name: IsPrerelease
-    type: boolean
-    default: true
+  - name: PreRelease
+    type: string
   - name: SkipTest
     type: boolean
     default: false
@@ -36,11 +39,12 @@ stages:
       Major: ${{ parameters.Major }}
       Minor: ${{ parameters.Minor }}
       Patch: ${{ parameters.Patch }}
-      IsPrerelease: ${{ parameters.IsPrerelease }}
+      PreRelease: ${{ parameters.PreRelease }}
+      GenerateBuildNumber: true
       Configuration: Release
-      SkipBuildArtifactPackagingAndPublication: false
+      SkipBuildArtifactPublication: false
       SkipTest: ${{ parameters.SkipTest }}
 
   - template: /Stages/release-nuget.yml
     parameters:
-      IsPrerelease: ${{ parameters.IsPrerelease }}
+      IsPrerelease: ${{ ne( parameters.PreRelease, '' ) }}

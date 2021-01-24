@@ -1,24 +1,34 @@
-﻿parameters:
+﻿#region Copyright & License
+
+# Copyright © 2020 - 2021 Emmanuel Benitez
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#endregion
+parameters:
   - name: Major
     type: number
   - name: Minor
     type: number
   - name: Patch
     type: number
-  - name: IsPrerelease
-    type: boolean
-  - name: Revision
-    type: string
 
 steps:
   - powershell: |
-      $build = ('{0:yy}{1:000}' -f [datetime]::Today, [datetime]::Today.DayOfYear)
-      Write-Host "##vso[task.setvariable variable=VersionBuild;isOutput=true]$build"
-      Write-Host "##vso[task.setvariable variable=VersionRevision;isOutput=true]${{ parameters.Revision }}"
-      if( '${{parameters.IsPrerelease}}' -eq 'True' ) {
-        Write-Host "##vso[build.updatebuildnumber]${{ parameters.Major }}.${{ parameters.Minor }}.${{ parameters.Patch }}-preview$build.${{ parameters.Revision }}"
-      } else {
-        Write-Host "##vso[build.updatebuildnumber]${{ parameters.Major }}.${{ parameters.Minor }}.${{ parameters.Patch }}.${{ parameters.Revision }}"
+      $buildNumber = "${{ parameters.Major }}.${{ parameters.Minor }}.${{ parameters.Patch }}"
+      if( -not [string]::IsNullOrWhiteSpace('$(variable.prerelease)')) {
+        $buildNumber = "$buildNumber-$(version.prerelease)"
       }
+      Write-Host "##vso[build.updatebuildnumber]$buildNumber"
     displayName: generate build number
     name: generateBuildNumber

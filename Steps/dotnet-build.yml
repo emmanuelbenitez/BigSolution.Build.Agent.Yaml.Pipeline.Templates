@@ -1,4 +1,6 @@
-﻿# Copyright © 2020 Emmanuel Benitez
+﻿#region Copyright & License
+
+# Copyright © 2020 - 2021 Emmanuel Benitez
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#endregion
+
 parameters:
   - name: ProjectOrSolutionPath
     type: string
@@ -21,12 +25,10 @@ parameters:
     type: number
   - name: Patch
     type: number
-  - name: Build
+  - name: VersionSuffix
     type: string
-  - name: Revision
+  - name: PrivateSigningKeyPath
     type: string
-  - name: IsPreRelease
-    type: boolean
   - name: Configuration
     type: string
     values:
@@ -39,4 +41,4 @@ steps:
     inputs:
       command: "build"
       projects: "${{ parameters.ProjectOrSolutionPath }}"
-      arguments: "-p:Configuration=${{ parameters.Configuration }};PreRelease=${{ lower(parameters.IsPreRelease) }};Major=${{ parameters.Major }};Minor=${{ parameters.Minor }};Patch=${{ parameters.Patch }};Build=${{ parameters.Build }};Revision=${{ parameters.Revision }};AssemblyOriginatorKeyFile=$(PrivateSigningKeyPath);GeneratePackageOnBuild=false --no-restore"
+      arguments: "-p:Configuration=${{ parameters.Configuration }};VersionSuffix=${{ lower(parameters.VersionSuffix) }};Major=${{ parameters.Major }};Minor=${{ parameters.Minor }};Patch=${{ parameters.Patch }};AssemblyOriginatorKeyFile=${{ parameters.PrivateSigningKeyPath }};GeneratePackageOnBuild=false --no-restore"

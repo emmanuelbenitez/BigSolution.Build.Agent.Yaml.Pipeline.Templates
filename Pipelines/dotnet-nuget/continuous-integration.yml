@@ -1,4 +1,6 @@
-﻿# Copyright © 2020 Emmanuel Benitez
+﻿#region Copyright & License
+
+# Copyright © 2020 - 2021 Emmanuel Benitez
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#endregion
+
 parameters:
   - name: ProjectOrSolutionPath
     type: string
-  - name: Major
-    type: number
-  - name: Minor
-    type: number
-  - name: Patch
-    type: number
-    default: 0
   - name: SkipTest
     type: boolean
     default: false
@@ -30,10 +27,11 @@ stages:
   - template: /Stages/build-dotnet-nuget.yml
     parameters:
       ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
-      Major: ${{ parameters.Major }}
-      Minor: ${{ parameters.Minor }}
-      Patch: ${{ parameters.Patch }}
-      IsPrerelease: true
+      Major: 1
+      Minor: 0
+      Patch: 0
+      PreRelease: ''
+      GenerateBuildNumber: false
       Configuration: Debug
-      SkipBuildArtifactPackagingAndPublication: true
       SkipTest: ${{ parameters.SkipTest }}
+      SkipBuildArtifactPublication: true

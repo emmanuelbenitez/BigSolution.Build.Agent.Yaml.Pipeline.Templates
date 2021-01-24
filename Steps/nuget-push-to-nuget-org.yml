@@ -1,4 +1,6 @@
-﻿# Copyright © 2020 Emmanuel Benitez
+﻿#region Copyright & License
+
+# Copyright © 2020 - 2021 Emmanuel Benitez
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#endregion
+
+parameters:
+  - name: PathToPush
+    type: string
+
 steps:
   - task: NuGetCommand@2
     displayName: nuget push
     inputs:
       command: "push"
-      packagesToPush: "$(System.ArtifactsDirectory)/**/*.nupkg"
+      packagesToPush: "${{ parameters.PathToPush }}"
       nuGetFeedType: "external"
       publishFeedCredentials: "nuget.org_emmanuelbenitez"
       verbosityPush: "Normal"

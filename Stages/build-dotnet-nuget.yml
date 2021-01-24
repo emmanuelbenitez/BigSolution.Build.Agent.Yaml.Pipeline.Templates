@@ -1,4 +1,6 @@
-﻿# Copyright © 2020 Emmanuel Benitez
+﻿#region Copyright & License
+
+# Copyright © 2020 - 2021 Emmanuel Benitez
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#endregion
+
 parameters:
   - name: ProjectOrSolutionPath
     type: string
@@ -21,47 +25,46 @@ parameters:
     type: number
   - name: Patch
     type: number
-  - name: IsPrerelease
+  - name: PreRelease
+    type: string
+  - name: GenerateBuildNumber
     type: boolean
   - name: Configuration
     type: string
     values:
       - Debug
       - Release
-  - name: SkipBuildArtifactPackagingAndPublication
-    type: boolean
   - name: SkipTest
     type: boolean
-    default: false
+  - name: SkipBuildArtifactPublication
+    type: boolean
 
 stages:
   - stage: build
     displayName: "Build stage"
+    variables:
+      - ${{ if ne(parameters.PreRelease , '') }}:
+          - name: version.prerelease
+            value: $[ format('{0}{1}', '${{parameters.PreRelease}}', counter('${{format('{0}.{1}.{2}-{3}', parameters.Major, parameters.Minor, parameters.Patch, parameters.PreRelease)}}', 0)) ]
     jobs:
-      - job: prepare
-        displayName: "Prepare"
-        variables:
-          version.revision: $[counter(format('{0:yyyyMMdd}', pipeline.startTime), 0)]
-        steps:
-          - checkout: none
+      - ${{ if eq(parameters.GenerateBuildNumber, true) }}:
+          - job: prepare
+            displayName: "Prepare"
+            steps:
+              - checkout: none
 
-          - template: /Steps/generate-build-number.yml
-            parameters:
-              Major: ${{ parameters.Major }}
-              Minor: ${{ parameters.Minor }}
-              Patch: ${{ parameters.Patch }}
-              Revision: $(version.revision)
-              IsPrerelease: ${{ parameters.IsPrerelease }}
+              - template: /Steps/generate-build-number.yml
+                parameters:
+                  Major: ${{ parameters.Major }}
+                  Minor: ${{ parameters.Minor }}
+                  Patch: ${{ parameters.Patch }}
       - job: build
         displayName: "Compile, test, and pack"
         pool:
           vmImage: "windows-latest"
-        dependsOn: prepare
-        condition: succeeded()
-        variables:
-          version.build: $[ dependencies.prepare.outputs['generateBuildNumber.VersionBuild'] ]
-          version.revision: $[ dependencies.prepare.outputs['generateBuildNumber.VersionRevision'] ]
-          PrivateSigningKeyPath: ""
+        ${{ if eq( parameters.GenerateBuildNumber, true) }}:
+          dependsOn: prepare
+          condition: succeeded()
         steps:
           - checkout: self
             submodules: true
@@ -79,40 +82,42 @@ stages:
               Major: ${{ parameters.Major }}
               Minor: ${{ parameters.Minor }}
               Patch: ${{ parameters.Patch }}
-              Build: $(version.build)
-              Revision: $(version.revision)
-              IsPrerelease: ${{ parameters.IsPrerelease }}
+              PrivateSigningKeyPath: "$(privateSigningKey.secureFilePath)"
+              ${{ if ne(parameters.PreRelease , '') }}:
+                VersionSuffix: $(version.prerelease)
+              ${{ if eq(parameters.PreRelease , '') }}:
+                VersionSuffix: ""
+
           - ${{ if eq(parameters.SkipTest, false) }}:
-            - template: /Steps/dotnet-test.yml
-              parameters:
-                ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
-                Configuration: ${{ parameters.Configuration }}
+              - template: /Steps/dotnet-test.yml
+                parameters:
+                  ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
+                  Configuration: ${{ parameters.Configuration }}
 
-          - ${{ if eq(parameters.SkipBuildArtifactPackagingAndPublication, false) }}:
-            - template: /Steps/dotnet-pack.yml
-              parameters:
-                Configuration: ${{ parameters.Configuration }}
+          - ${{ if eq(parameters.SkipBuildArtifactPublication, false) }}:
+              - template: /Steps/dotnet-pack.yml
+                parameters:
+                  Configuration: ${{ parameters.Configuration }}
+                  OutputPath: "$(Build.ArtifactStagingDirectory)/packages"
 
-            - template: /Steps/publish-build-artifact.yml
-              parameters:
-                ArtifactName: "nugetPackage"
-                PathToPublish: "$(Build.ArtifactStagingDirectory)/packages"
-
+              - template: /Steps/publish-build-artifact.yml
+                parameters:
+                  ArtifactName: "nugetPackages"
+                  PathToPublish: "$(Build.ArtifactStagingDirectory)/packages"
       - job: analyzeCode
         displayName: "Analyze code"
-        dependsOn: prepare
-        condition: succeeded()
+        ${{ if eq( parameters.GenerateBuildNumber, true) }}:
+          dependsOn: prepare
+          condition: succeeded()
         pool:
           vmImage: "windows-latest"
         steps:
-        - checkout: self
-          submodules: true
-
-        - template: /Steps/dotnet-restore.yml
-          parameters:
-            ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
-
-        - template: /Steps/analyze-code-with-resharper.yml
-          parameters:
-            ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
-            Configuration: ${{ parameters.Configuration }}
+          - checkout: self
+            submodules: true
+          - template: /Steps/dotnet-restore.yml
+            parameters:
+              ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
+          - template: /Steps/analyze-code-with-resharper.yml
+            parameters:
+              ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
+              Configuration: ${{ parameters.Configuration }}
