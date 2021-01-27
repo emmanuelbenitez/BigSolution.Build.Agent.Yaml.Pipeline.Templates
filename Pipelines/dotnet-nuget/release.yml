@@ -28,6 +28,7 @@ parameters:
     default: 0
   - name: PreRelease
     type: string
+    default: ''
   - name: SkipTest
     type: boolean
     default: false
