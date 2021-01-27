@@ -31,21 +31,22 @@ steps:
     inputs:
       command: test
       projects: "${{ parameters.ProjectOrSolutionPath }}"
-      arguments: "--no-build --configuration ${{ parameters.Configuration }} /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./results/coverage.cobertura.xml"
+      arguments: --no-build --configuration ${{ parameters.Configuration }} --settings .resources/code-coverage.runsettings
+      # arguments: "--no-build --configuration ${{ parameters.Configuration }} /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./results/coverage.cobertura.xml"
   # TODO : Should be replaced when PublishCodeCoverageResults task will supports multiple files.
-  - task: reportgenerator@4
-    displayName: generate code coverage report
-    inputs:
-      reports: '$(build.sourcesdirectory)/**/coverage.*.xml'
-      targetdir: 'coverage'
-      reporttypes: "HtmlInline_AzurePipelines;Cobertura;Badges"
-      assemblyfilters: "-xunit*"
-      verbosity: "Info" # Verbose, Info, Warning, Error, Off
+  # - task: reportgenerator@4
+  #   displayName: generate code coverage report
+  #   inputs:
+  #     reports: '$(build.sourcesdirectory)/**/coverage.*.xml'
+  #     targetdir: 'coverage'
+  #     reporttypes: "HtmlInline_AzurePipelines;Cobertura;Badges"
+  #     assemblyfilters: "-xunit*"
+  #     verbosity: "Info" # Verbose, Info, Warning, Error, Off
 
-  - task: PublishCodeCoverageResults@1
-    displayName: publish code coverage report
-    inputs:
-      codeCoverageTool: Cobertura
-      summaryFileLocation: '$(build.sourcesdirectory)\coverage\cobertura.xml'
-      reportDirectory: '$(build.sourcesdirectory)\coverage'
-      failIfCoverageEmpty: false
+  # - task: PublishCodeCoverageResults@1
+  #   displayName: publish code coverage report
+  #   inputs:
+  #     codeCoverageTool: Cobertura
+  #     summaryFileLocation: '$(build.sourcesdirectory)\coverage\cobertura.xml'
+  #     reportDirectory: '$(build.sourcesdirectory)\coverage'
+  #     failIfCoverageEmpty: false
