@@ -89,9 +89,8 @@ stages:
                 VersionSuffix: ""
 
           - ${{ if eq(parameters.SkipTest, false) }}:
-              - template: /Steps/dotnet-test.yml
+              - template: /Steps/vstest.yml
                 parameters:
-                  ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
                   Configuration: ${{ parameters.Configuration }}
 
           - ${{ if eq(parameters.SkipBuildArtifactPublication, false) }}:
