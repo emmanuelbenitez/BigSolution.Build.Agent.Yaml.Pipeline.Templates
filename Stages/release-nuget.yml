@@ -24,7 +24,7 @@ stages:
   - stage: release
     displayName: "Release stage"
     dependsOn: build
-    condition: succeeded()
+    condition: and(succeeded(), not(canceled()))
     jobs:
       - job: publish
         displayName: "Create github release and publish package on nuget.org"
