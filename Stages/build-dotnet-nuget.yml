@@ -45,7 +45,7 @@ stages:
     variables:
       - ${{ if ne(parameters.PreRelease , '') }}:
           - name: version.prerelease
-            value: $[ format('{0}-{1:0000}', '${{parameters.PreRelease}}', counter('${{format('{0}.{1}.{2}-{3}', parameters.Major, parameters.Minor, parameters.Patch, parameters.PreRelease)}}', 1)) ]
+            value: $[ format('{0}-{1}', '${{parameters.PreRelease}}', counter('${{format('{0}.{1}.{2}-{3}', parameters.Major, parameters.Minor, parameters.Patch, parameters.PreRelease)}}', 1)) ]
     jobs:
       - ${{ if eq(parameters.GenerateBuildNumber, true) }}:
           - job: prepare
