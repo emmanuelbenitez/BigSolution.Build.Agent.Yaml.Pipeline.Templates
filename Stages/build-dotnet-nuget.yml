@@ -61,7 +61,7 @@ stages:
       - job: build
         displayName: "Compile, test, and pack"
         pool:
-          vmImage: "windows-latest"
+          vmImage: "windows-2022" #Use for supporting .Net 6.0
         ${{ if eq( parameters.GenerateBuildNumber, true) }}:
           dependsOn: prepare
           condition: succeeded()
