@@ -104,20 +104,20 @@ stages:
                 parameters:
                   ArtifactName: "nugetPackages"
                   PathToPublish: "$(Build.ArtifactStagingDirectory)/packages"
-      - job: analyzeCode
-        displayName: "Analyze code"
-        ${{ if eq( parameters.GenerateBuildNumber, true) }}:
-          dependsOn: prepare
-          condition: succeeded()
-        pool:
-          vmImage: "windows-latest"
-        steps:
-          - checkout: self
-            submodules: true
-          - template: /Steps/dotnet-restore.yml
-            parameters:
-              ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
-          - template: /Steps/analyze-code-with-resharper.yml
-            parameters:
-              ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
-              Configuration: ${{ parameters.Configuration }}
+      # - job: analyzeCode
+      #   displayName: "Analyze code"
+      #   ${{ if eq( parameters.GenerateBuildNumber, true) }}:
+      #     dependsOn: prepare
+      #     condition: succeeded()
+      #   pool:
+      #     vmImage: "windows-2022" #Use for supporting .Net 6.0
+      #   steps:
+      #     - checkout: self
+      #       submodules: true
+      #     - template: /Steps/dotnet-restore.yml
+      #       parameters:
+      #         ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
+      #     - template: /Steps/analyze-code-with-resharper.yml
+      #       parameters:
+      #         ProjectOrSolutionPath: ${{ parameters.ProjectOrSolutionPath }}
+      #         Configuration: ${{ parameters.Configuration }}
