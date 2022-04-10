@@ -50,6 +50,8 @@ stages:
       - ${{ if eq(parameters.GenerateBuildNumber, true) }}:
           - job: prepare
             displayName: "Prepare"
+            pool:
+              vmImage: "windows-latest" #Use for supporting .Net 6.0
             steps:
               - checkout: none
 
