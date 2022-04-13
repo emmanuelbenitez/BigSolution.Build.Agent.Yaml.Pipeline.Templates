@@ -28,6 +28,8 @@ stages:
     jobs:
       - job: publish
         displayName: "Create github release and publish package on nuget.org"
+        pool:
+          vmImage: "windows-latest" #Use for supporting .Net 6.0
         steps:
           - checkout: none
 
