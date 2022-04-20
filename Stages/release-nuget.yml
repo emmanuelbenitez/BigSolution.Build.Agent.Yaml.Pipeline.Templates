@@ -44,4 +44,4 @@ stages:
 
           - template: /Steps/nuget-push-to-nuget-org.yml
             parameters:
-              PathToPush: "$(System.ArtifactsDirectory)/**/*.nupkg"
+              PathToPush: "$(System.ArtifactsDirectory)/**/*.*nupkg"
